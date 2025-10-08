@@ -8,6 +8,9 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 ALLOWED_EXT = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+@app.route('/')
+def home():
+    return 'Сервер работает! 🎉', 200
 
 # Простое хранилище одноразовых токенов: token -> срок жизни (UTC)
 tokens = {}
