@@ -10,9 +10,11 @@ ALLOWED_EXT = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
+from flask import render_template
+
 @app.route('/')
 def home():
-    return 'Сервер работает! 🎉', 200
+    return render_template('home.html')
 
 # Простое хранилище одноразовых токенов: token -> срок жизни (UTC)
 tokens = {}
