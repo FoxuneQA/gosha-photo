@@ -56,7 +56,7 @@
         formData.append('photo', blob, 'photo.png');
         fetch('/upload_photo_open', { method: 'POST', body: formData })
           .then(r => r.json())
-          .then(() => alert('Фото отправлено 📤'))
+          .then(data => alert('Фото отправлено 📤'))
           .catch(() => alert('Ошибка при отправке 😢'));
       });
     }

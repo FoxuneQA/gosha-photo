@@ -15,8 +15,8 @@ def home():
     return render_template('home.html')
 
 # 💙 Отдельный маршрут для камеры
-@app.route('/camera')
-def open_camera():
+@app.route('/')
+def home():
     return render_template('camera.html')
 
 
