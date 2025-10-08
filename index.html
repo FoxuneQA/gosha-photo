@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Сделать фото </title>
+<style>
+body { font-family: Arial; padding:20px; max-width:700px; margin:auto; }
+h1 { color:#2b6cb0; }
+video, canvas { width:100%; border-radius:8px; background:#000; }
+button { margin-top:10px; padding:10px 16px; font-size:16px; border-radius:8px; cursor:pointer; }
+#status { margin-top:10px; color:#333; }
+</style>
+</head>
+<body>
+<h1>Сделай фото 😊</h1>
+<p>Нажми «Включить камеру», дай разрешение, затем «Сделать фото». После «Отправить фото» изображение уйдёт на сервер.</p>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas" style="display:none;"></canvas><br>
+
+<button id="startBtn">Включить камеру</button>
+<button id="photoBtn" disabled>Сделать фото</button>
+<button id="uploadBtn" disabled>Искать двойника</button>
+
+<p id="status">Статус: ожидание</p>
+
+<script>
+const token = "{{TOKEN}}";
+const v = document.getElementById('video');
+const c = document.getElementById('canvas');
+const s = document.getElementById('status');
+const startBtn = document.getElementById('startBtn');
+const photoBtn = document.getElementById('photoBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+let stream = null;
+
+startBtn.onclick = async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+    v.srcObject = stream;
+    photoBtn.disabled = false;
+    s.textContent = 'Камера включена. Нажми «Сделать фото».';
+  } catch (e) {
+    s.textContent = 'Ошибка доступа к камере: ' + e.message;
+  }
+};
+
+photoBtn.onclick = () => {
+  if (!stream) return;
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  c.style.display = 'block';
+  uploadBtn.disabled = false;
+  s.textContent = 'Фото готово. Можно отправлять.';
+};
+
+uploadBtn.onclick = () => {
+  c.toBlob(async (blob) => {
+    if (!blob) { s.textContent = 'Не удалось получить изображение.'; return; }
+    const fd = new FormData();
+    fd.append('photo', blob, 'photo.png');
+    fd.append('token', token);
+    s.textContent = 'Отправка...';
+    try {
+      const r = await fetch('/upload_photo', { method: 'POST', body: fd });
+      const j = await r.json();
+      if (r.ok) {
+        s.innerHTML = 'Фото загружено: <a href="' + j.url + '" target="_blank" rel="noopener">открыть</a>';
+      } else {
+        s.textContent = 'Ошибка: ' + (j.error || r.statusText);
+      }
+    } catch (e) {
+      s.textContent = 'Ошибка сети: ' + e.message;
+    }
+  }, 'image/png');
+};
+</script>
+</body>
+</html>
