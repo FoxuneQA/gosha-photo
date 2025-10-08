@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Найди своего двойника 👯‍♂️</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.4em;
+      margin-bottom: 20px;
+      animation: fadeIn 1s ease-in-out;
+    }
+    p {
+      font-size: 1.1em;
+      opacity: 0.9;
+      margin-bottom: 40px;
+    }
+    button {
+      background: white;
+      color: #2575fc;
+      font-weight: bold;
+      border: none;
+      border-radius: 25px;
+      padding: 15px 35px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      transform: scale(1.08);
+      background: #f1f1f1;
+    }
+    footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.9em;
+      opacity: 0.7;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 Сделай фото и найди своего двойника 👯‍♂️</h1>
+  <p>Создай уникальную ссылку и отправь другу — посмотрите, похожи ли вы!</p>
+  <button onclick="window.location.href='/new'">Создать ссылку 🔗</button>
+  <footer>Powered by Gosha ❤️</footer>
+</body>
+</html>
