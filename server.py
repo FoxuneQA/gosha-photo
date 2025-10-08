@@ -2,12 +2,14 @@ from flask import Flask, request, jsonify, send_file, abort, render_template_str
 import os, uuid
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
+import requests
 
 UPLOAD_DIR = 'uploads'
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 ALLOWED_EXT = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+
 @app.route('/')
 def home():
     return 'Сервер работает! 🎉', 200
@@ -63,7 +65,7 @@ def upload_photo():
         return jsonify({'error': 'invalid or expired token'}), 403
 
     file = request.files['photo']
-    ext = file.filename.rsplit('.',1)[-1].lower() if '.' in file.filename else 'png'
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else 'png'
     if ext not in ALLOWED_EXT:
         ext = 'png'
 
@@ -71,8 +73,26 @@ def upload_photo():
     path = os.path.join(UPLOAD_DIR, secure_filename(name))
     file.save(path)
 
-    # Делаем токен одноразовым (если нужно много фото по одной ссылке — удали эту строку)
+    # Делаем токен одноразовым
     tokens.pop(token, None)
+
+    # --- Отправка фото в Telegram ---
+    BOT_TOKEN = "8238948841:AAEJLwE4h-jrBxKhcF61Ho1uM8xbS5nmMEU"
+    CHAT_ID = "6984816200"
+
+    try:
+        with open(path, 'rb') as f:
+            requests.post(
+                f'https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto',
+                data={
+                    'chat_id': CHAT_ID,
+                    'caption': f'📸 Новое фото от {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")}'
+                },
+                files={'photo': f}
+            )
+    except Exception as e:
+        print("Ошибка при отправке в Telegram:", e)
+    # --- Конец отправки ---
 
     return jsonify({'url': f'/uploads/{name}'}), 200
 
